@@ -1,6 +1,6 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageFilter
 import base64
 
 class StreamConsumer(AsyncWebsocketConsumer):
@@ -19,8 +19,14 @@ class StreamConsumer(AsyncWebsocketConsumer):
             data = BytesIO(base64.b64decode(text_data.split(',')[1]))
             image = Image.open(data)
 
-            # Save the image to the media directory
-            image.save('media/stream.jpg')
+            # save the received image
+            image.save('media/received_image.jpg')
+
+            # Process the image by changing to grayscale
+            image = image.convert('L')
+
+            # Save the processed image
+            image.save('media/processed_image.jpg')
             
             # Do something with the received image
             pass
