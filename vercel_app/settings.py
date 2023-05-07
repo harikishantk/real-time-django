@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'example',
     'webcam',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -129,3 +130,16 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+ASGI_APPLICATION = 'vercel_app.asgi.application'
+WSGI_APPLICATION = 'vercel_app.wsgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+        "ROUTING": "myapp.routing.channel_routing",
+        "CONFIG": {
+            "debug": True,
+        },
+    },
+}
