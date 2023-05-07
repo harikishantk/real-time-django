@@ -7,16 +7,20 @@ import os
 
 import django
 from channels.routing import get_default_application
+from django.core.asgi import get_asgi_application
+from channels.auth import AuthMiddlewareStack
+from channels.routing import ProtocolTypeRouter, URLRouter
+from django.core.asgi import get_asgi_application
+import webcam.routing
+
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "vercel_app.settings")
 django.setup()
-application = get_default_application()
-
-from django.urls import URLPattern
-
-websocket_urls = []
-for url in application.url_router.urls:
-    print(url.pattern, url.websocket)
-    if isinstance(url, URLPattern) and url.websocket:
-        websocket_urls.append(url.pattern)
-print(websocket_urls)
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+    'websocket': AuthMiddlewareStack(
+        URLRouter(
+            webcam.routing.websocket_urlpatterns
+        )
+    ),
+})
