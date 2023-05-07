@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+   <title>Webcam Stream</title>
+</head>
+<body>
+   <button onclick="start_stream()">Start Stream</button>
+   <button onclick="stop_stream()">Stop Stream</button>
+   <br/><br/>
+   <video id="localVideo" width="640" height="480" autoplay></video>
+   <br/><br/>
+   <video id="remoteVideo" width="640" height="480" autoplay></video>
+   <script>
+      var localVideo = document.querySelector("#localVideo");
+      var remoteVideo = document.querySelector("#remoteVideo");
+      var streamStarted = false;
+      var stream = null;
+      
+      function start_stream() {
+         // Check if the browser supports getUserMedia API
+         if (navigator.mediaDevices.getUserMedia) {
+            // Request access to the user's webcam
+            navigator.mediaDevices.getUserMedia({video: true})
+            .then(function(mediaStream) {
+               // Set the media stream as the source of the local video element
+               localVideo.srcObject = mediaStream;
+               // Save the media stream to a variable for later use
+               stream = mediaStream;
+            })
+            .catch(function(error) {
+               console.error('Could not access the user\'s webcam: ' + error.message);
+            });
+         } else {
+            console.error('The getUserMedia API is not supported by this browser.');
+         }
+      }
+      
+      function stop_stream() {
+         // Stop the media stream and clear the local video element source
+         if (stream) {
+            stream.getTracks().forEach(function(track) {
+               track.stop();
+            });
+            localVideo.srcObject = null;
+            stream = null;
+         }
+      }
+   </script>
+</body>
+</html>
