@@ -28,5 +28,12 @@ class StreamConsumer(AsyncWebsocketConsumer):
             # Save the processed image
             image.save('media/processed_image.jpg')
             
-            # Do something with the received image
-            pass
+            # Send the processed image back to the client if image is not empty
+            if image:
+                # Convert the PIL image to base64 encoded JPEG image
+                buffered = BytesIO()
+                image.save(buffered, format="JPEG")
+                encoded_image = base64.b64encode(buffered.getvalue()).decode("utf-8")
+                
+                # Send the base64 encoded JPEG image to the client
+                await self.send(encoded_image)
