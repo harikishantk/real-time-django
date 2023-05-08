@@ -23,6 +23,10 @@
 
         var startButton = document.getElementById('startButton');
         startButton.addEventListener('click', function () {
+            // if ws is disconnected, then connect again
+            if (ws.readyState === ws.CLOSED) {
+                ws = new WebSocket('ws://' + window.location.host + '/ws/stream/');
+            }
             // Request access to the user's webcam
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(function (stream) {
