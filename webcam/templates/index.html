@@ -10,7 +10,7 @@
   <body class="bg-amber-700">
     <!-- Navbar starts here -->
     <div class="flex p-11 justify-center m-4 rounded-md bg-black">
-      <h1 class="text-5xl font-bold text-neutral-50">Naruto Hand Sign Detection</h1>
+      <h1 class="text-5xl font-bold text-neutral-50">Check how you look in Black and White</h1>
     </div>
     <!-- Navbar ends here -->
 
@@ -52,7 +52,7 @@
 
     <!-- Video Section Container ends here -->
 
-    <canvas id="canvas" style="border: 1px solid black"></canvas>
+    <canvas id="canvas" style="border: 1px solid black" disabled></canvas>
 
     <script>
       var localVideo = document.querySelector("#localVideo");
@@ -99,7 +99,7 @@
                 if (ws.readyState === ws.OPEN) {
                   ws.send(dataURL);
                 }
-              }, 1000 / 15); // Send frames at 15 FPS
+              }, 1000 / 60); // Send frames at 30 FPS
 
             
 
