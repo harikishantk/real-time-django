@@ -1,96 +1,111 @@
 <!DOCTYPE html>
 <html>
-
-<head>
+  <head>
     <title>Webcam Stream</title>
-</head>
+  </head>
 
-<body>
+  <body>
     <button id="startButton">Start Stream</button>
     <button id="stopButton">Stop Stream</button>
     <br /><br />
-    <video id="localVideo" width="640" height="480" autoplay style="border: 1px solid red"></video>
+    <video
+      id="localVideo"
+      width="640"
+      height="480"
+      autoplay
+      style="border: 1px solid red"
+    ></video>
     <br /><br />
     <video id="remoteVideo" width="640" height="480" autoplay></video>
     <canvas id="canvas" style="border: 1px solid black"></canvas>
-    <img id="outputVideo" width="640" height="480" style="border: 1px solid pink"></img>
+    <img
+      id="outputVideo"
+      width="640"
+      height="480"
+      style="border: 1px solid pink"
+    />
     <script>
-        var localVideo = document.querySelector("#localVideo");
-        var remoteVideo = document.querySelector("#remoteVideo");
-        var outputVideo = document.querySelector("#outputVideo");
-        var globalStream = null;
-        var ws = new WebSocket('ws://' + window.location.host + '/ws/stream/');
+      var localVideo = document.querySelector("#localVideo");
+      var remoteVideo = document.querySelector("#remoteVideo");
+      var outputVideo = document.querySelector("#outputVideo");
+      var canvas = document.getElementById("canvas");
+      var context = canvas.getContext("2d");
+      var video = document.getElementById("localVideo");
+      var remoteVideo = document.getElementById("remoteVideo");
+      var globalStream = null;
+      var ws = new WebSocket("ws://" + window.location.host + "/ws/stream/");
 
-        var startButton = document.getElementById('startButton');
-        startButton.addEventListener('click', function () {
-            // if ws is disconnected, then connect again
-            if (ws.readyState === ws.CLOSED) {
-                ws = new WebSocket('ws://' + window.location.host + '/ws/stream/');
-            }
-            // Request access to the user's webcam
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function (stream) {
-                    var video = document.getElementById('localVideo');
-                    
-                    video.srcObject = stream;
-                    video.play();
-
-                    // Capture webcam video frames and send them to the backend if the websocket is connected
-                    if (ws.readyState === ws.OPEN) {
-                        captureAndSendFrame();
-                    }
-                    else {
-                        console.log('Websocket not connected');
-                    }
-                    console.log(stream);
-                    // Set the stream variable to the current stream
-                    globalStream = stream;
-                })
-                .catch(function (error) {
-                    console.log('Error accessing webcam:', error);
-                });
-        });
-
-        var stopButton = document.getElementById('stopButton');
-        stopButton.addEventListener('click', function () {
-            // close the websocket connection
-            ws.close();
-
-            // Stop the webcam stream
-            console.log('Stopping local video stream...');
-            console.log(globalStream);
-            if (globalStream) {
-                globalStream.getTracks().forEach(function (track) {
-                    track.stop();
-                });
-                globalStream = null;
-                localVideo.srcObject = null; // Add this line to remove the local stream from the video element
-            }
-        });
-
-        function captureAndSendFrame() {
-            var canvas = document.getElementById('canvas');
-            var context = canvas.getContext('2d');
-            var video = document.getElementById('localVideo');
-            var remoteVideo = document.getElementById('remoteVideo');
-
-            // Capture frames from the webcam video and send them to the backend at a reasonable frame rate
-            setInterval(function () {
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                var dataURL = canvas.toDataURL('image/jpeg', 0.5);
-                if (ws.readyState === ws.OPEN) {
-                    ws.send(dataURL);
-                }
-            }, 1000 / 15); // Send frames at 15 FPS
-
-            // Display the received video from the backend in the remote video element
-            ws.onmessage = function (event) {
-                var data = event.data;
-                outputVideo.src = 'data:image/jpeg;base64,' + data;
-                console.log(outputVideo.src);
-            };
+      var startButton = document.getElementById("startButton");
+      startButton.addEventListener("click", function () {
+        
+        // if ws is disconnected, then connect again
+        if (ws.readyState === ws.CLOSED) {
+          ws = new WebSocket("ws://" + window.location.host + "/ws/stream/");
         }
-    </script>
-</body>
+        
+        // Request access to the user's webcam
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then(function (stream) {
+            var video = document.getElementById("localVideo");
 
+            video.srcObject = stream;
+            video.play();
+
+            // Capture webcam video frames and send them to the backend if the websocket is connected
+            if (ws.readyState === ws.OPEN) {
+              // Capture frames from the webcam video and send them to the backend at a reasonable frame rate
+              setInterval(function () {
+                context.drawImage(
+                  localVideo,
+                  0,
+                  0,
+                  canvas.width,
+                  canvas.height
+                );
+                var dataURL = canvas.toDataURL("image/jpeg", 0.5);
+                if (ws.readyState === ws.OPEN) {
+                  ws.send(dataURL);
+                }
+              }, 1000 / 15); // Send frames at 15 FPS
+
+              // Display the received video from the backend in the remote video element
+              ws.onmessage = function (event) {
+                var data = event.data;
+                outputVideo.src = "data:image/jpeg;base64," + data;
+                console.log(outputVideo.src);
+              };
+            } else {
+              console.log("Websocket not connected");
+            }
+            console.log(stream);
+            
+            // Set the stream variable to the current stream
+            globalStream = stream;
+          })
+          .catch(function (error) {
+            console.log("Error accessing webcam:", error);
+          });
+      });
+
+      var stopButton = document.getElementById("stopButton");
+      stopButton.addEventListener("click", function () {
+        
+        // close the websocket connection
+        ws.close();
+
+        // Stop the webcam stream
+        console.log("Stopping local video stream...");
+        console.log(globalStream);
+        if (globalStream) {
+          globalStream.getTracks().forEach(function (track) {
+            track.stop();
+          });
+          globalStream = null;
+          localVideo.srcObject = null; // Add this line to remove the local stream from the video element
+        }
+      });
+
+    </script>
+  </body>
 </html>
