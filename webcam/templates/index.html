@@ -2,28 +2,58 @@
 <html>
   <head>
     <title>Webcam Stream</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
 
-  <body>
-    <button id="startButton">Start Stream</button>
-    <button id="stopButton">Stop Stream</button>
-    <br /><br />
-    <video
-      id="localVideo"
-      width="640"
-      height="480"
-      autoplay
-      style="border: 1px solid red"
-    ></video>
-    <br /><br />
-    <video id="remoteVideo" width="640" height="480" autoplay></video>
+  <body class="bg-amber-700">
+    <!-- Navbar starts here -->
+    <div class="flex p-11 justify-center m-4 rounded-md bg-black">
+      <h1 class="text-5xl font-bold text-neutral-50">Naruto Hand Sign Detection</h1>
+    </div>
+    <!-- Navbar ends here -->
+
+    <!-- Hero Section Container starts here -->
+    <div class="flex justify-center">
+      <button
+        class="bg-green-500 hover:bg-green-700 p-4 m-2 text-neutral-50 rounded-md"
+        id="startButton"
+      >
+        Start Stream
+      </button>
+      <button
+        class="bg-red-500 hover:bg-red-700 p-4 m-2 text-neutral-50 rounded-md"
+        id="stopButton"
+      >
+        Stop Stream
+      </button>
+    </div>
+    <!-- Hero Section Container ends here -->
+
+    <!-- Video Section Containter starts here -->
+    <div class="flex flex-row rounded-md m-4 bg-black">
+      <video
+        class="m-10"
+        id="localVideo"
+        width="800"
+        height="800"
+        autoplay
+        style="border: 1px solid red"
+      ></video>
+      <img
+        class="m-10"
+        id="outputVideo"
+        width="800"
+        height="800"
+        style="border: 1px solid pink"
+      />
+    </div>
+
+    <!-- Video Section Container ends here -->
+
     <canvas id="canvas" style="border: 1px solid black"></canvas>
-    <img
-      id="outputVideo"
-      width="640"
-      height="480"
-      style="border: 1px solid pink"
-    />
+
     <script>
       var localVideo = document.querySelector("#localVideo");
       var remoteVideo = document.querySelector("#remoteVideo");
@@ -37,12 +67,14 @@
 
       var startButton = document.getElementById("startButton");
       startButton.addEventListener("click", function () {
-        
+        // Disable the start button once it's clicked
+        startButton.disabled = true;
+
         // if ws is disconnected, then connect again
         if (ws.readyState === ws.CLOSED) {
           ws = new WebSocket("ws://" + window.location.host + "/ws/stream/");
         }
-        
+
         // Request access to the user's webcam
         navigator.mediaDevices
           .getUserMedia({ video: true })
@@ -69,6 +101,8 @@
                 }
               }, 1000 / 15); // Send frames at 15 FPS
 
+            
+
               // Display the received video from the backend in the remote video element
               ws.onmessage = function (event) {
                 var data = event.data;
@@ -79,7 +113,7 @@
               console.log("Websocket not connected");
             }
             console.log(stream);
-            
+
             // Set the stream variable to the current stream
             globalStream = stream;
           })
@@ -90,7 +124,9 @@
 
       var stopButton = document.getElementById("stopButton");
       stopButton.addEventListener("click", function () {
-        
+        // Enable the start button once it's clicked
+        startButton.disabled = false;
+
         // close the websocket connection
         ws.close();
 
@@ -105,7 +141,6 @@
           localVideo.srcObject = null; // Add this line to remove the local stream from the video element
         }
       });
-
     </script>
   </body>
 </html>
