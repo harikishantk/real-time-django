@@ -79,14 +79,6 @@ WSGI_APPLICATION = 'vercel_app.wsgi.app'
 # environments like Vercel. You can use a database over HTTP, hosted elsewhere.
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': 'wnzqa56BJVKxbXkDEGjf',
-        'HOST': 'containers-us-west-80.railway.app',
-        'PORT': '7202',
-    }
 }
 
 
